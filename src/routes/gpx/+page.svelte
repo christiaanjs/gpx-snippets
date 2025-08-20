@@ -258,18 +258,27 @@
 	<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 </svelte:head>
 
-<div class="app">
-	<header>
-		<h1>GPX Trace Plotter</h1>
-		<p>Upload a GPX file to visualize your GPS track</p>
+<div class="container mx-auto p-4">
+	<header class="text-center mb-8">
+		<h1 class="h1 mb-2">GPX Trace Plotter</h1>
+		<p class="text-surface-500">Upload a GPX file to visualize your GPS track</p>
 	</header>
 
-	<main>
-		<div class="upload-section">
-			<input type="file" accept=".gpx" bind:this={fileInput} on:change={handleFileUpload} />
+	<main class="space-y-4">
+		<div class="card p-4 variant-soft">
+			<label class="label">
+				<span>Upload GPX File</span>
+				<input
+					class="input"
+					type="file"
+					accept=".gpx"
+					bind:this={fileInput}
+					on:change={handleFileUpload}
+				/>
+			</label>
 
 			{#if uploadedFile}
-				<div class="file-info">
+				<div class="alert variant-filled-success mt-4">
 					<strong>Loaded:</strong>
 					{uploadedFile.name}
 				</div>
@@ -277,149 +286,55 @@
 		</div>
 
 		{#if gpxData && traceStats}
-			<div class="stats-section">
-				<h3>{gpxData.name}</h3>
-				<div class="stats-grid">
-					<div class="stat">
-						<span>Distance:</span>
-						<span>{traceStats.totalDistance.toFixed(2)} km</span>
-					</div>
-					<div class="stat">
-						<span>Duration:</span>
-						<span>{formatDuration(traceStats.duration)}</span>
-					</div>
-					<div class="stat">
-						<span>Points:</span>
-						<span>{traceStats.pointCount.toLocaleString()}</span>
-					</div>
-					{#if traceStats.minElevation !== null && traceStats.maxElevation !== null}
-						<div class="stat">
-							<span>Elevation Range:</span>
-							<span
-								>{traceStats.minElevation.toFixed(0)}m - {traceStats.maxElevation.toFixed(0)}m</span
-							>
+			<div class="card p-4 variant-soft">
+				<header class="card-header">
+					<h3 class="h3">{gpxData.name}</h3>
+				</header>
+				<section class="p-4">
+					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+						<div class="card p-3 variant-ghost">
+							<span class="font-bold">Distance:</span>
+							<span>{traceStats.totalDistance.toFixed(2)} km</span>
 						</div>
-						<div class="stat">
-							<span>Elevation Gain:</span>
-							<span>+{traceStats.totalElevationGain.toFixed(0)}m</span>
+						<div class="card p-3 variant-ghost">
+							<span class="font-bold">Duration:</span>
+							<span>{formatDuration(traceStats.duration)}</span>
 						</div>
-						<div class="stat">
-							<span>Elevation Loss:</span>
-							<span>-{traceStats.totalElevationLoss.toFixed(0)}m</span>
+						<div class="card p-3 variant-ghost">
+							<span class="font-bold">Points:</span>
+							<span>{traceStats.pointCount.toLocaleString()}</span>
 						</div>
-					{/if}
-				</div>
+						{#if traceStats.minElevation !== null && traceStats.maxElevation !== null}
+							<div class="card p-3 variant-ghost">
+								<span class="font-bold">Elevation Range:</span>
+								<span>{traceStats.minElevation.toFixed(0)}m - {traceStats.maxElevation.toFixed(0)}m</span>
+							</div>
+							<div class="card p-3 variant-ghost">
+								<span class="font-bold">Elevation Gain:</span>
+								<span>+{traceStats.totalElevationGain.toFixed(0)}m</span>
+							</div>
+							<div class="card p-3 variant-ghost">
+								<span class="font-bold">Elevation Loss:</span>
+								<span>-{traceStats.totalElevationLoss.toFixed(0)}m</span>
+							</div>
+						{/if}
+					</div>
+				</section>
 			</div>
 		{/if}
 
-		<div class="map-container" bind:this={mapContainer}></div>
+		<div class="card p-0 overflow-hidden shadow-lg">
+			<div class="map-container h-[600px]" bind:this={mapContainer}></div>
+		</div>
 	</main>
 </div>
 
 <style>
-	.app {
-		max-width: 1200px;
-		margin: 0 auto;
-		padding: 20px;
-		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-	}
-
-	header {
-		text-align: center;
-		margin-bottom: 30px;
-	}
-
-	header h1 {
-		color: #2c3e50;
-		margin-bottom: 10px;
-	}
-
-	header p {
-		color: #7f8c8d;
-		margin: 0;
-	}
-
-	.upload-section {
-		background: #f8f9fa;
-		padding: 20px;
-		border-radius: 8px;
-		margin-bottom: 20px;
-		text-align: center;
-	}
-
-	input[type='file'] {
-		padding: 10px;
-		border: 2px dashed #3498db;
-		border-radius: 4px;
-		background: white;
-		cursor: pointer;
-	}
-
-	.file-info {
-		margin-top: 15px;
-		padding: 10px;
-		background: #e8f5e8;
-		border-radius: 4px;
-		color: #27ae60;
-	}
-
-	.stats-section {
-		background: white;
-		padding: 20px;
-		border-radius: 8px;
-		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-		margin-bottom: 20px;
-	}
-
-	.stats-section h3 {
-		margin: 0 0 15px 0;
-		color: #2c3e50;
-	}
-
-	.stats-grid {
-		display: grid;
-		grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-		gap: 15px;
-	}
-
-	.stat {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		padding: 10px 15px;
-		background: #f8f9fa;
-		border-radius: 4px;
-	}
-
-	.stat span {
-		font-weight: 500;
-		color: #7f8c8d;
-	}
-
-	.stat span {
-		font-weight: 600;
-		color: #2c3e50;
-	}
-
-	.map-container {
-		height: 600px;
-		width: 100%;
-		border-radius: 8px;
-		overflow: hidden;
-		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-	}
-
+	/* Map container specific styles */
 	@media (max-width: 768px) {
-		.app {
-			padding: 10px;
-		}
-
 		.map-container {
-			height: 400px;
-		}
-
-		.stats-grid {
-			grid-template-columns: 1fr;
+			height: 400px !important;
 		}
 	}
 </style>
+

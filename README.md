@@ -1,2 +1,3 @@
-# gpx-snippets
-Little web apps for working with GPX traces
+# GPX snippets
+
+Little utilities for working with GPX

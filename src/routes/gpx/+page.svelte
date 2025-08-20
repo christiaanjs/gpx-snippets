@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { onMount } from 'svelte';
 	import { browser } from '$app/environment';
-	import type { Map, TileLayer, Polyline, Marker } from 'leaflet';
+	import type { Map, Polyline } from 'leaflet';
 
-	// Define interfaces for type safety
 	interface GPXPoint {
 		lat: number;
 		lon: number;
@@ -35,6 +34,28 @@
 	let uploadedFile: File | null = null;
 	let gpxData: GPXData | null = null;
 	let traceStats: TraceStats | null = null;
+	let isLocating = false;
+	let locationError: string | null = null;
+
+	// Get current location from browser
+	function getCurrentLocation(): Promise<[number, number]> {
+		return new Promise((resolve, reject) => {
+			if (!browser || !navigator.geolocation) {
+				reject(new Error('Geolocation is not supported by this browser'));
+				return;
+			}
+
+			navigator.geolocation.getCurrentPosition(
+				(position) => {
+					resolve([position.coords.latitude, position.coords.longitude]);
+				},
+				(error) => {
+					reject(new Error(`Geolocation error: ${error.message}`));
+				},
+				{ timeout: 1000, enableHighAccuracy: true }
+			);
+		});
+	}
 
 	// Initialize the map
 	onMount(async () => {
@@ -42,13 +63,28 @@
 			// Dynamically import Leaflet to avoid SSR issues
 			const L = await import('leaflet');
 
-			// Initialize map centered on a default location
+			// Default location (NYC)
+			let center: [number, number] = [40.7128, -74.006];
+			let defaultZoom = 13;
+
+			isLocating = true;
+			try {
+				center = await getCurrentLocation();
+				defaultZoom = 14; // Zoom a bit closer when we have user's location
+				locationError = null;
+			} catch (error) {
+				console.warn('Could not get current location:', error);
+				locationError = error instanceof Error ? error.message : 'Unknown location error';
+			} finally {
+				isLocating = false;
+			}
+
+			// Initialize map centered on determined location
 			map = L.map(mapContainer, {
-				center: [40.7128, -74.006], // NYC default
-				zoom: 13
+				center,
+				zoom: defaultZoom
 			});
 
-			// Add OpenStreetMap tiles
 			L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 				attribution: '© OpenStreetMap contributors'
 			}).addTo(map);
@@ -69,7 +105,6 @@
 					const parser = new DOMParser();
 					const gpxDoc = parser.parseFromString(e.target.result as string, 'text/xml');
 
-					// Check for parsing errors
 					if (gpxDoc.getElementsByTagName('parsererror').length > 0) {
 						reject(new Error('Invalid GPX file format'));
 						return;
@@ -259,13 +294,13 @@
 </svelte:head>
 
 <div class="container mx-auto p-4">
-	<header class="text-center mb-8">
-		<h1 class="h1 mb-2">GPX Trace Plotter</h1>
+	<header class="mb-8 text-center">
+		<h1 class="mb-2 h1">GPX Trace Plotter</h1>
 		<p class="text-surface-500">Upload a GPX file to visualize your GPS track</p>
 	</header>
 
 	<main class="space-y-4">
-		<div class="card p-4 variant-soft">
+		<div class="variant-soft card p-4">
 			<label class="label">
 				<span>Upload GPX File</span>
 				<input
@@ -285,35 +320,49 @@
 			{/if}
 		</div>
 
+		{#if isLocating}
+			<div class="alert variant-filled-primary">
+				<span>Locating your position...</span>
+			</div>
+		{:else if locationError}
+			<div class="alert variant-filled-warning">
+				<span>Using default location: {locationError}</span>
+			</div>
+		{/if}
+
 		{#if gpxData && traceStats}
-			<div class="card p-4 variant-soft">
+			<div class="variant-soft card p-4">
 				<header class="card-header">
 					<h3 class="h3">{gpxData.name}</h3>
 				</header>
 				<section class="p-4">
-					<div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-						<div class="card p-3 variant-ghost">
+					<div class="grid grid-cols-1 gap-4 md:grid-cols-3">
+						<div class="variant-ghost card p-3">
 							<span class="font-bold">Distance:</span>
 							<span>{traceStats.totalDistance.toFixed(2)} km</span>
 						</div>
-						<div class="card p-3 variant-ghost">
+						<div class="variant-ghost card p-3">
 							<span class="font-bold">Duration:</span>
 							<span>{formatDuration(traceStats.duration)}</span>
 						</div>
-						<div class="card p-3 variant-ghost">
+						<div class="variant-ghost card p-3">
 							<span class="font-bold">Points:</span>
 							<span>{traceStats.pointCount.toLocaleString()}</span>
 						</div>
 						{#if traceStats.minElevation !== null && traceStats.maxElevation !== null}
-							<div class="card p-3 variant-ghost">
+							<div class="variant-ghost card p-3">
 								<span class="font-bold">Elevation Range:</span>
-								<span>{traceStats.minElevation.toFixed(0)}m - {traceStats.maxElevation.toFixed(0)}m</span>
+								<span
+									>{traceStats.minElevation.toFixed(0)}m - {traceStats.maxElevation.toFixed(
+										0
+									)}m</span
+								>
 							</div>
-							<div class="card p-3 variant-ghost">
+							<div class="variant-ghost card p-3">
 								<span class="font-bold">Elevation Gain:</span>
 								<span>+{traceStats.totalElevationGain.toFixed(0)}m</span>
 							</div>
-							<div class="card p-3 variant-ghost">
+							<div class="variant-ghost card p-3">
 								<span class="font-bold">Elevation Loss:</span>
 								<span>-{traceStats.totalElevationLoss.toFixed(0)}m</span>
 							</div>
@@ -323,7 +372,7 @@
 			</div>
 		{/if}
 
-		<div class="card p-0 overflow-hidden shadow-lg">
+		<div class="overflow-hidden card p-0 shadow-lg">
 			<div class="map-container h-[600px]" bind:this={mapContainer}></div>
 		</div>
 	</main>
@@ -337,4 +386,3 @@
 		}
 	}
 </style>
-

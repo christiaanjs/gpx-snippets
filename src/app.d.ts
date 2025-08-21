@@ -8,6 +8,13 @@ declare global {
 		}
 	} // interface Error {}
 	// interface Locals {}
+	
+	namespace NodeJS {
+		interface ProcessEnv {
+			OPENROUTESERVICE_API_KEY: string;
+			[key: string]: string | undefined;
+		}
+	}
 } // interface PageData {}
 // interface PageState {}
 

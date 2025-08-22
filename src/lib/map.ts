@@ -1,4 +1,4 @@
-import type { Map, Polyline, Marker, LatLng } from 'leaflet';
+import type { Map, Polyline } from 'leaflet';
 import type { GPXData, GPXPoint } from './types';
 import { browser } from '$app/environment';
 import { getCurrentLocation } from './location';

@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { isValidPoint } from '../lib/types';
+import { isValidPoint } from "../../../shared/types"
 import { getRouteORS } from '../lib/routing';
 
 export default async function routes(app: FastifyInstance) {

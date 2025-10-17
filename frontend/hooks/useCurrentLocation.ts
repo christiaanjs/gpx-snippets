@@ -8,7 +8,7 @@ export const useCurrentLocation = () => {
   useEffect(() => {
     const fetchLocation = async () => {
       const currentLocation = await getCurrentLocation();
-      setLocation(currentLocation);
+      if (currentLocation) setLocation(currentLocation);
     };
 
     fetchLocation();

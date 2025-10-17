@@ -1,25 +1,29 @@
 import type { Metadata } from 'next';
 import { Open_Sans } from 'next/font/google';
-import './globals.css';
+import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
 
 const openSans = Open_Sans({
-	variable: '--font-open-sans',
-	subsets: ['latin']
+  variable: "--font-open-sans",
+  subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-	title: 'GPX Snippets',
-	description: 'Tools for working with GPX data'
+  title: "GPX Snippets",
+  description: "Tools for working with GPX data",
 };
 
 export default function RootLayout({
-	children
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-	return (
-		<html lang="en">
-			<body className={`${openSans.variable} antialiased`}>{children}</body>
-		</html>
-	);
+  return (
+    <html lang="en">
+      <body className={`${openSans.variable} antialiased`}>
+        <Toaster position="top-center" />
+        {children}
+      </body>
+    </html>
+  );
 }

@@ -1,4 +1,4 @@
-import { useGpx } from "@/lib/gpx-context";
+import { useMyMap } from "@/lib/map-context";
 import { calculateStats, getStatsDisplayItems } from "@shared/stats";
 import { useMemo } from "react";
 import {
@@ -9,7 +9,7 @@ import {
 } from "../ui/accordion";
 
 export function GpxSummary() {
-  const { gpx } = useGpx();
+  const { gpx } = useMyMap();
   const statItems = useMemo(() => {
     if (!gpx) return null;
     const stats = calculateStats(gpx.points);

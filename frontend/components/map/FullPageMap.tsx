@@ -8,43 +8,39 @@ import {
   MapContainer,
   ZoomControlProps,
 } from "react-leaflet";
-import { useGpx } from "@/lib/gpx-context";
-import { useEffect, useRef } from "react";
-import { plotGPXTrace } from "@/lib/plot-trace";
+import { useMyMap } from "@/lib/map-context";
+import { cloneElement, forwardRef, useRef } from "react";
+import { Map as LeafletMap } from "leaflet";
 
 export type FullPageMapProps = {
   zoomControlPosition?: ZoomControlProps["position"];
 };
 
-export function FullPageMap({
-  zoomControlPosition = "bottomright",
-}: FullPageMapProps = {}) {
-  const mapRef = useRef<L.Map | null>(null);
-  const initialLocation = useCurrentLocation();
-  const { gpx } = useGpx();
+export const FullPageMap = forwardRef(
+  ({ zoomControlPosition = "bottomright" }: FullPageMapProps, ref) => {
+    const mapRef = useRef<LeafletMap | null>(null);
 
-  useEffect(() => {
-    if (gpx && mapRef.current) {
-      plotGPXTrace(mapRef.current, gpx);
-    }
-  }, [gpx, mapRef.current]);
+    const initialLocation = useCurrentLocation();
+    const { mapFeatures } = useMyMap();
 
-  return (
-    <>
-      <LeafletStaticResources />
-      <MapContainer
-        center={initialLocation}
-        zoom={6}
-        className="absolute inset-0 z-0"
-        zoomControl={false}
-        ref={mapRef}
-      >
-        <TileLayer
-          attribution="&copy; OpenStreetMap contributors"
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
-        <ZoomControl position={zoomControlPosition} />
-      </MapContainer>
-    </>
-  );
-}
+    return (
+      <>
+        <LeafletStaticResources />
+        <MapContainer
+          center={initialLocation}
+          zoom={6}
+          className="absolute inset-0 z-0"
+          zoomControl={false}
+          ref={mapRef}
+        >
+          <TileLayer
+            attribution="&copy; OpenStreetMap contributors"
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+          <ZoomControl position={zoomControlPosition} />
+          {mapFeatures}
+        </MapContainer>
+      </>
+    );
+  }
+);

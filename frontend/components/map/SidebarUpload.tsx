@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/input";
-import { useGpx } from "@/lib/gpx-context";
+import { useMyMap } from "@/lib/map-context";
 import { useRef } from "react";
 import { parseGPX } from "@shared/gpx";
 import { toast } from "sonner";
@@ -8,14 +8,13 @@ import { GpxSummary } from "./GpxSummary";
 import { PanelHeader } from "./panels/PanelHeader";
 
 export function SidebarUpload() {
-  const { setGpx } = useGpx();
+  const { setGpx } = useMyMap();
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
-      console.log("Parsing GPX file:", file.name);
       parseGPX(file)
         .then((data) => {
           setGpx(data);

@@ -1,7 +1,7 @@
 "use client";
 
-import { ReactNode } from "react";
-import { GpxProvider } from "@/lib/gpx-context";
+import { ReactNode, useRef } from "react";
+import { MapContextProvider } from "@/lib/map-context";
 import { SidebarUpload } from "@/components/map/SidebarUpload";
 import dynamic from "next/dynamic";
 const FullPageMap = dynamic(
@@ -10,13 +10,15 @@ const FullPageMap = dynamic(
     ssr: false,
   }
 );
+import type { Map as LeafletMap } from "leaflet";
 
 export default function MapLayout({ children }: { children: ReactNode }) {
+  const mapRef = useRef<LeafletMap | null>(null);
   return (
-    <GpxProvider>
+    <MapContextProvider map={mapRef.current}>
       <SidebarUpload />
-      <FullPageMap />
+      <FullPageMap ref={mapRef} />
       {children}
-    </GpxProvider>
+    </MapContextProvider>
   );
 }

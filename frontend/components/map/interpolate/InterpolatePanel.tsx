@@ -1,6 +1,6 @@
 "use client";
 
-import { useGpx } from "@/lib/gpx-context";
+import { useMyMap } from "@/lib/map-context";
 import { PanelHeader } from "../panels/PanelHeader";
 import { RightPanel } from "../panels/RightPanel";
 
@@ -17,7 +17,7 @@ const NoData = () => <div>Load a GPX file to interpolate.</div>;
 
 export const InterpolatePanel = () => {
   const header = <PanelHeader>Interpolate</PanelHeader>;
-  const { gpx, setGpx } = useGpx();
+  const { gpx, setGpx } = useMyMap();
   const map = useMap();
 
   const [selectedPoints, setSelectedPoints] = useState<GPXPoint[]>([]);
@@ -34,9 +34,8 @@ export const InterpolatePanel = () => {
 
   useEffect(() => {
     if (map && gpx) {
-      plotSelectableGPXTrace(map, gpx, handlePointSelection, gpxLayer);
+      plotSelectableGPXTrace(map, gpx, handlePointSelection);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, gpx]);
 
   const handlePointSelection = useCallback(
@@ -50,49 +49,48 @@ export const InterpolatePanel = () => {
     [selectedPoints]
   );
 
-  // Interpolate route
-  const interpolateRoute = async () => {
-    if (!map || selectedPoints.length !== 2) return;
-    setIsInterpolating(true);
-    setInterpolationError(null);
-    try {
-      let result: RoutingResult | null = null;
-      if (routingService === "osrm") {
-        result = await getRouteOSRM(
-          selectedPoints[0],
-          selectedPoints[1],
-          osrmProfile
-        );
-      } else {
-        result = await getRouteORS(selectedPoints[0], selectedPoints[1], {
-          profile: orsProfile,
-          preference: orsPreference,
-        });
-      }
-      setRouteResult(result);
-      if (result) {
-        const layer = await plotInterpolatedRoute(
-          map,
-          result,
-          selectedPoints[0],
-          selectedPoints[1],
-          routeLayer
-        );
-        setRouteLayer(layer);
-      }
-    } catch (error: any) {
-      setInterpolationError(error?.message || "Unknown interpolation error");
-    } finally {
-      setIsInterpolating(false);
-    }
-  };
+  //   const interpolateRoute = async () => {
+  //     if (!map || selectedPoints.length !== 2) return;
+  //     setIsInterpolating(true);
+  //     setInterpolationError(null);
+  //     try {
+  //       let result: RoutingResult | null = null;
+  //       if (routingService === "osrm") {
+  //         result = await getRouteOSRM(
+  //           selectedPoints[0],
+  //           selectedPoints[1],
+  //           osrmProfile
+  //         );
+  //       } else {
+  //         result = await getRouteORS(selectedPoints[0], selectedPoints[1], {
+  //           profile: orsProfile,
+  //           preference: orsPreference,
+  //         });
+  //       }
+  //       setRouteResult(result);
+  //       if (result) {
+  //         const layer = await plotInterpolatedRoute(
+  //           map,
+  //           result,
+  //           selectedPoints[0],
+  //           selectedPoints[1],
+  //           routeLayer
+  //         );
+  //         setRouteLayer(layer);
+  //       }
+  //     } catch (error: any) {
+  //       setInterpolationError(error?.message || "Unknown interpolation error");
+  //     } finally {
+  //       setIsInterpolating(false);
+  //     }
+  //   };
 
   // Reset selection and route
   const resetSelection = () => {
     setSelectedPoints([]);
     setRouteResult(null);
     if (map && gpx) {
-      createSelectableGPXTrace(map, gpx, handlePointSelection, gpxLayer);
+      plotSelectableGPXTrace(map, gpx, handlePointSelection);
     }
     if (routeLayer && map) {
       map.removeLayer(routeLayer);
@@ -197,13 +195,13 @@ export const InterpolatePanel = () => {
           )}
           {selectedPoints.length === 2 && (
             <div className="flex gap-2">
-              <Button
+              {/* <Button
                 variant="default"
                 onClick={interpolateRoute}
                 disabled={isInterpolating}
               >
                 {isInterpolating ? "Calculating..." : "Interpolate Route"}
-              </Button>
+              </Button> */}
               <Button
                 variant="outline"
                 onClick={resetSelection}

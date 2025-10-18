@@ -1,12 +1,10 @@
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useGpx } from "@/lib/gpx-context";
-import { Upload } from "lucide-react";
 import { useRef } from "react";
 import { parseGPX } from "@shared/gpx";
 import { toast } from "sonner";
 import { LeftPanel } from "./LeftPanel";
+import { GpxSummary } from "./GpxSummary";
 
 export function SidebarUpload() {
   const { setGpx } = useGpx();
@@ -31,12 +29,15 @@ export function SidebarUpload() {
   const header = <h2 className="text-lg font-semibold">Upload GPX Trace</h2>;
   return (
     <LeftPanel buttonContent={"Upload GPX"} headerContent={header}>
-      <Input
-        ref={inputRef}
-        type="file"
-        accept=".gpx,application/gpx+xml"
-        onChange={handleFile}
-      />
+      <div className="flex flex-col gap-2">
+        <Input
+          ref={inputRef}
+          type="file"
+          accept=".gpx,application/gpx+xml"
+          onChange={handleFile}
+        />
+        <GpxSummary />
+      </div>
     </LeftPanel>
   );
 }

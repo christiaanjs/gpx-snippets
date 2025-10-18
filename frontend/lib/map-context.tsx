@@ -1,7 +1,7 @@
 "use client";
 
 import { GPXData } from "@shared/types";
-import { Map as LeafletMap, Polyline as LeafletPolyline } from "leaflet";
+import { Map as LeafletMap } from "leaflet";
 import {
   createContext,
   useContext,
@@ -9,7 +9,6 @@ import {
   ReactNode,
   JSX,
   useEffect,
-  useRef,
 } from "react";
 import dynamic from "next/dynamic";
 
@@ -64,17 +63,12 @@ export function MapContextProvider({
     });
   };
 
-  const gpxLineRef = useRef<LeafletPolyline>(null);
-
   useEffect(() => {
     if (gpx) {
       upsertFeature(
         "gpx-polyline",
-        <PolylineFromGpx ref={gpxLineRef} key="gpx-polyline" gpxData={gpx} />
+        <PolylineFromGpx key="gpx-polyline" gpxData={gpx} />
       );
-      if (map && gpxLineRef.current) {
-        map.fitBounds(gpxLineRef.current.getBounds(), { padding: [20, 20] });
-      }
     } else {
       removeFeature("gpx-polyline");
     }

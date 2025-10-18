@@ -20,3 +20,29 @@ export function calculateDistance(p1: GPXPoint, p2: GPXPoint): number {
 
   return R * c;
 }
+
+type Bounds = {
+  minLat: number;
+  maxLat: number;
+  minLon: number;
+  maxLon: number;
+};
+
+export function getBounds(points: GPXPoint[]): Bounds | undefined {
+  if (points.length === 0) {
+    return undefined;
+  }
+  let minLat = points[0].lat;
+  let maxLat = points[0].lat;
+  let minLon = points[0].lon;
+  let maxLon = points[0].lon;
+
+  for (const pt of points) {
+    if (pt.lat < minLat) minLat = pt.lat;
+    if (pt.lat > maxLat) maxLat = pt.lat;
+    if (pt.lon < minLon) minLon = pt.lon;
+    if (pt.lon > maxLon) maxLon = pt.lon;
+  }
+
+  return { minLat, maxLat, minLon, maxLon };
+}

@@ -36,3 +36,27 @@ export type TraceStats = {
 	endTime: Date | null;
 	pointCount: number;
 };
+
+export type ORSRoutingProfile =
+  | "foot-walking"
+  | "foot-hiking"
+  | "cycling-regular"
+  | "cycling-mountain"
+  | "cycling-road"
+  | "driving-car";
+export type ORSPreference = "fastest" | "shortest" | "recommended";
+
+export type ORSRoutingOptions = {
+  profile: ORSRoutingProfile;
+  preference?: ORSPreference;
+  includeElevation?: boolean;
+  extraInfo?: Array<"surface" | "steepness" | "waytype">;
+  language?: string;
+  units?: "km" | "m";
+};
+
+export type RoutingResult = {
+  route: GPXPoint[];
+  distance: number;
+  duration: number;
+};

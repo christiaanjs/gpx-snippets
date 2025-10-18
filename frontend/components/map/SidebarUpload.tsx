@@ -3,8 +3,9 @@ import { useGpx } from "@/lib/gpx-context";
 import { useRef } from "react";
 import { parseGPX } from "@shared/gpx";
 import { toast } from "sonner";
-import { LeftPanel } from "./LeftPanel";
+import { LeftPanel } from "./panels/LeftPanel";
 import { GpxSummary } from "./GpxSummary";
+import { PanelHeader } from "./panels/PanelHeader";
 
 export function SidebarUpload() {
   const { setGpx } = useGpx();
@@ -26,7 +27,7 @@ export function SidebarUpload() {
     }
   }
 
-  const header = <h2 className="text-lg font-semibold">Upload GPX Trace</h2>;
+  const header = <PanelHeader>Upload GPX File</PanelHeader>;
   return (
     <LeftPanel buttonContent={"Upload GPX"} headerContent={header}>
       <div className="flex flex-col gap-2">

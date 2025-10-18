@@ -16,9 +16,7 @@ export default function MapLayout({ children }: { children: ReactNode }) {
     <GpxProvider>
       <SidebarUpload />
       <FullPageMap />
-      <div className="absolute inset-0 z-10 pointer-events-none">
-        {children}
-      </div>
+      {children}
     </GpxProvider>
   );
 }

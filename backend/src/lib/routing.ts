@@ -1,31 +1,7 @@
-import type { GPXPoint } from "../../../shared/types";
+import type { GPXPoint, ORSRoutingOptions, RoutingResult } from "@shared/types";
 
 // Base URL for OpenRouteService API
 const orsApiBaseUrl = "https://api.openrouteservice.org/v2/directions";
-
-export type ORSRoutingProfile =
-  | "foot-walking"
-  | "foot-hiking"
-  | "cycling-regular"
-  | "cycling-mountain"
-  | "cycling-road"
-  | "driving-car";
-export type ORSPreference = "fastest" | "shortest" | "recommended";
-
-export type ORSRoutingOptions = {
-  profile: ORSRoutingProfile;
-  preference?: ORSPreference;
-  includeElevation?: boolean;
-  extraInfo?: Array<"surface" | "steepness" | "waytype">;
-  language?: string;
-  units?: "km" | "m";
-};
-
-export type RoutingResult = {
-  route: GPXPoint[];
-  distance: number;
-  duration: number;
-};
 
 /**
  * Get a route between two points using the OpenRouteService API (server-side only)

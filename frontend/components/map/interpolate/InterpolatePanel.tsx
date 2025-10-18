@@ -8,7 +8,6 @@ import { useEffect, useState, useCallback } from "react";
 import type { GPXPoint, RoutingResult } from "@shared/types";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { useMap } from "react-leaflet";
 import { plotSelectableGPXTrace } from "@/lib/plot-trace";
 
 const pointLabels = ["First point", "Second point"];
@@ -17,8 +16,7 @@ const NoData = () => <div>Load a GPX file to interpolate.</div>;
 
 export const InterpolatePanel = () => {
   const header = <PanelHeader>Interpolate</PanelHeader>;
-  const { gpx, setGpx } = useMyMap();
-  const map = useMap();
+  const { gpx, upsertFeature } = useMyMap();
 
   const [selectedPoints, setSelectedPoints] = useState<GPXPoint[]>([]);
   const [routingService, setRoutingService] = useState<"osrm" | "ors">("osrm");
@@ -32,12 +30,6 @@ export const InterpolatePanel = () => {
   );
   const [routeLayer, setRouteLayer] = useState<any>(undefined);
 
-  useEffect(() => {
-    if (map && gpx) {
-      plotSelectableGPXTrace(map, gpx, handlePointSelection);
-    }
-  }, [map, gpx]);
-
   const handlePointSelection = useCallback(
     (point: GPXPoint, index: number) => {
       if (selectedPoints.length >= 2) {
@@ -48,6 +40,17 @@ export const InterpolatePanel = () => {
     },
     [selectedPoints]
   );
+
+  useEffect(() => {
+    if (gpx) {
+      upsertFeature("selectable-gpx-trace", {
+        id: "selectable-gpx-trace",
+        type: "selectable-point-line",
+        points: gpx.points,
+        onPointSelect: handlePointSelection,
+      });
+    }
+  }, [gpx]);
 
   //   const interpolateRoute = async () => {
   //     if (!map || selectedPoints.length !== 2) return;
@@ -89,13 +92,6 @@ export const InterpolatePanel = () => {
   const resetSelection = () => {
     setSelectedPoints([]);
     setRouteResult(null);
-    if (map && gpx) {
-      plotSelectableGPXTrace(map, gpx, handlePointSelection);
-    }
-    if (routeLayer && map) {
-      map.removeLayer(routeLayer);
-      setRouteLayer(undefined);
-    }
   };
 
   return (

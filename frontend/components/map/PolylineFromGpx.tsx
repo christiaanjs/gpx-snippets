@@ -1,23 +1,23 @@
 "use client";
 
-import { GPXData } from "@shared/types";
+import { GPXData, GPXPoint } from "@shared/types";
 import { forwardRef } from "react";
-import { Polyline as LeafletPolyline } from "leaflet";
-import { Polyline } from "react-leaflet";
+import { Polyline, PolylineProps } from "react-leaflet";
 
-export const PolylineFromGpx = forwardRef<
-  LeafletPolyline,
-  { gpxData: GPXData }
->(({ gpxData }, ref) => {
-  const latLngs = gpxData.points.map(
-    (point) => [point.lat, point.lon] as [number, number]
-  );
+type Props = { points: GPXPoint[] } & Omit<PolylineProps, "positions">;
 
-  return (
-    <Polyline
-      positions={latLngs}
-      pathOptions={{ color: "#e74c3c" }}
-      ref={ref}
-    />
-  );
-});
+export const PolylineFromGpx = forwardRef(
+  ({ points, ...props }: Props, ref) => {
+    const latLngs = points.map(
+      (point) => [point.lat, point.lon] as [number, number]
+    );
+
+    return (
+      <Polyline
+        positions={latLngs}
+        pathOptions={{ color: "#e74c3c" }}
+        {...props}
+      />
+    );
+  }
+);

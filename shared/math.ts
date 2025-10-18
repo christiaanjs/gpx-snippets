@@ -1,4 +1,4 @@
-import type { GPXPoint } from "./types";
+import type { GPXPoint, MapBounds } from "./types";
 
 /**
  * Calculate distance between two points using Haversine formula
@@ -21,16 +21,9 @@ export function calculateDistance(p1: GPXPoint, p2: GPXPoint): number {
   return R * c;
 }
 
-type Bounds = {
-  minLat: number;
-  maxLat: number;
-  minLon: number;
-  maxLon: number;
-};
-
-export function getBounds(points: GPXPoint[]): Bounds | undefined {
+export function getBounds(points: GPXPoint[]): MapBounds | null {
   if (points.length === 0) {
-    return undefined;
+    return null;
   }
   let minLat = points[0].lat;
   let maxLat = points[0].lat;
@@ -44,5 +37,8 @@ export function getBounds(points: GPXPoint[]): Bounds | undefined {
     if (pt.lon > maxLon) maxLon = pt.lon;
   }
 
-  return { minLat, maxLat, minLon, maxLon };
+  return [
+    [minLat, minLon],
+    [maxLat, maxLon],
+  ];
 }

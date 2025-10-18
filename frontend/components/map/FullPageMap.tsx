@@ -9,8 +9,10 @@ import {
   ZoomControlProps,
 } from "react-leaflet";
 import { useMyMap } from "@/lib/map-context";
-import { cloneElement, forwardRef, useRef } from "react";
+import { forwardRef, useRef } from "react";
 import { Map as LeafletMap } from "leaflet";
+import { MapFeatureComponent } from "./features/MapFeatureComponent";
+import { MapBoundsSetter } from "./MapBoundsSetter";
 
 export type FullPageMapProps = {
   zoomControlPosition?: ZoomControlProps["position"];
@@ -21,7 +23,7 @@ export const FullPageMap = forwardRef(
     const mapRef = useRef<LeafletMap | null>(null);
 
     const initialLocation = useCurrentLocation();
-    const { mapFeatures } = useMyMap();
+    const { mapFeatures, mapBounds } = useMyMap();
 
     return (
       <>
@@ -38,7 +40,10 @@ export const FullPageMap = forwardRef(
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <ZoomControl position={zoomControlPosition} />
-          {mapFeatures}
+          <MapBoundsSetter bounds={mapBounds} />
+          {mapFeatures.map((feature) => (
+            <MapFeatureComponent key={feature.id} {...feature} />
+          ))}
         </MapContainer>
       </>
     );

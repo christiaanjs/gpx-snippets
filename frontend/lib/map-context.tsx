@@ -10,25 +10,20 @@ import {
   JSX,
   useEffect,
 } from "react";
-import dynamic from "next/dynamic";
-
-const PolylineFromGpx = dynamic(
-  () =>
-    import("@/components/map/PolylineFromGpx").then(
-      (mod) => mod.PolylineFromGpx
-    ),
-  {
-    ssr: false,
-  }
-);
+import { MapFeature } from "./types/map-features";
+import { MapBounds } from "./types/map";
+import { get } from "lodash";
+import { getBounds } from "@shared/math";
 
 interface MapContextType {
   gpx: GPXData | null;
   setGpx: (gpx: GPXData | null) => void;
   map: LeafletMap | null;
-  mapFeatures: JSX.Element[];
-  upsertFeature: (id: string, feature: JSX.Element) => void;
+  mapFeatures: MapFeature[];
+  upsertFeature: (id: string, feature: MapFeature) => void;
   removeFeature: (id: string) => void;
+  mapBounds: MapBounds | null;
+  setMapBounds: (bounds: MapBounds | null) => void;
 }
 
 const MapContext = createContext<MapContextType | undefined>(undefined);
@@ -47,9 +42,10 @@ export function MapContextProvider({
   children: ReactNode;
 }) {
   const [gpx, setGpx] = useState<GPXData | null>(null);
-  const [features, setFeatures] = useState<Record<string, JSX.Element>>({});
+  const [features, setFeatures] = useState<Record<string, MapFeature>>({});
+  const [mapBounds, setMapBounds] = useState<MapBounds | null>(null);
 
-  const upsertFeature = (id: string, feature: JSX.Element) => {
+  const upsertFeature = (id: string, feature: MapFeature) => {
     setFeatures((prev) => ({
       ...prev,
       [id]: feature,
@@ -65,12 +61,14 @@ export function MapContextProvider({
 
   useEffect(() => {
     if (gpx) {
-      upsertFeature(
-        "gpx-polyline",
-        <PolylineFromGpx key="gpx-polyline" gpxData={gpx} />
-      );
+      upsertFeature("gpx", {
+        id: "gpx",
+        type: "line",
+        points: gpx.points,
+      });
+      setMapBounds(getBounds(gpx.points));
     } else {
-      removeFeature("gpx-polyline");
+      removeFeature("gpx");
     }
   }, [gpx]);
 
@@ -85,6 +83,8 @@ export function MapContextProvider({
         mapFeatures,
         upsertFeature,
         removeFeature,
+        mapBounds,
+        setMapBounds,
       }}
     >
       {children}

@@ -60,3 +60,5 @@ export type RoutingResult = {
   distance: number;
   duration: number;
 };
+
+export type MapBounds = [[number, number], [number, number]];

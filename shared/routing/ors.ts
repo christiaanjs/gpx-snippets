@@ -1,7 +1,5 @@
-import type { GPXPoint, ORSRoutingOptions, RoutingResult } from "@shared/types";
-
-// Base URL for OpenRouteService API
-const orsApiBaseUrl = "https://api.openrouteservice.org/v2/directions";
+import type { GPXPoint } from "@shared/types";
+import { ORSRoutingOptions, RoutingResult } from "./types";
 
 /**
  * Get a route between two points using the OpenRouteService API (server-side only)
@@ -10,6 +8,7 @@ const orsApiBaseUrl = "https://api.openrouteservice.org/v2/directions";
  * @param options Routing options
  * @returns Promise with routing result
  */
+
 export async function getRouteORS(
   startPoint: GPXPoint,
   endPoint: GPXPoint,
@@ -108,4 +107,5 @@ export async function getRouteORS(
       }`
     );
   }
-}
+} // Base URL for OpenRouteService API
+export const orsApiBaseUrl = "https://api.openrouteservice.org/v2/directions";

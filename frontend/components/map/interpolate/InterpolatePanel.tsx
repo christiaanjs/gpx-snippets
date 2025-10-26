@@ -5,7 +5,8 @@ import { PanelHeader } from "../panels/PanelHeader";
 import { RightPanel } from "../panels/RightPanel";
 
 import { useEffect, useState, useCallback } from "react";
-import type { GPXPoint, RoutingResult } from "@shared/types";
+import type { GPXPoint } from "@shared/types";
+import type { RoutingResult } from "@shared/routing/types";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { plotSelectableGPXTrace } from "@/lib/plot-trace";

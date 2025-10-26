@@ -7,12 +7,10 @@ import {
   useContext,
   useState,
   ReactNode,
-  JSX,
   useEffect,
 } from "react";
 import { MapFeature } from "./types/map-features";
 import { MapBounds } from "./types/map";
-import { get } from "lodash";
 import { getBounds } from "@shared/math";
 
 interface MapContextType {

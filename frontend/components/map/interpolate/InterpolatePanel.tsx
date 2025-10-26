@@ -96,35 +96,42 @@ export const InterpolatePanel = () => {
   };
 
   return (
-    <RightPanel headerContent={header} buttonContent="Interpolate">
+    <RightPanel width={"xl"} headerContent={header} buttonContent="Interpolate">
       <Card className="p-4">
         <CardHeader>
           <h3 className="text-lg font-bold">Route Interpolation</h3>
         </CardHeader>
         <CardContent>
-          <p className="mb-4">
-            Select two points on the GPX trace to interpolate a route between
-            them.
-          </p>
-          <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
-            {selectedPoints.length > 0 ? (
-              selectedPoints.map((point, i) => (
-                <div key={i} className="bg-primary/10 rounded p-3">
-                  <span className="font-bold">{pointLabels[i]}:</span>
-                  <span>
-                    {" "}
-                    Lat: {point.lat.toFixed(6)}, Lon: {point.lon.toFixed(6)}
-                  </span>
-                </div>
-              ))
-            ) : (
-              <div className="bg-muted rounded p-3">
-                <span>
-                  No points selected yet. Click on the trace to select points.
-                </span>
+          {gpx ? (
+            <>
+              <p className="mb-4">
+                Select two points on the GPX trace to interpolate a route
+                between them.
+              </p>
+              <div className="mb-4 grid grid-cols-1 gap-4 md:grid-cols-2">
+                {selectedPoints.length > 0 ? (
+                  selectedPoints.map((point, i) => (
+                    <div key={i} className="bg-primary/10 rounded p-3">
+                      <span className="font-bold">{pointLabels[i]}:</span>
+                      <span>
+                        {" "}
+                        Lat: {point.lat.toFixed(6)}, Lon: {point.lon.toFixed(6)}
+                      </span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="bg-muted rounded p-3">
+                    <span>
+                      No points selected yet. Click on the trace to select
+                      points.
+                    </span>
+                  </div>
+                )}
               </div>
-            )}
-          </div>
+            </>
+          ) : (
+            <NoData />
+          )}
           {selectedPoints.length === 2 && (
             <div className="mb-4">
               <label className="block mb-2">

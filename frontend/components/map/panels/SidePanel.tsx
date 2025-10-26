@@ -8,6 +8,7 @@ export type SidePanelProps = {
   buttonContent?: React.ReactNode;
   headerContent?: React.ReactNode;
   side?: "left" | "right";
+  width?: "sm" | "md" | "lg" | "xl" | string;
 };
 
 export function SidePanel({
@@ -15,9 +16,24 @@ export function SidePanel({
   buttonContent,
   headerContent,
   side = "left",
+  width = "md",
 }: PropsWithChildren<SidePanelProps>) {
   const [open, setOpen] = useState(false);
   const isLeft = side === "left";
+
+  // Map predefined sizes to Tailwind classes
+  const getWidthClass = (width: string) => {
+    const predefinedSizes = {
+      sm: "w-64",
+      md: "w-72",
+      lg: "w-80",
+      xl: "w-96",
+    };
+    return predefinedSizes[width as keyof typeof predefinedSizes] || width;
+  };
+
+  const widthClass = getWidthClass(width);
+
   return (
     <div
       className={`absolute top-0 ${
@@ -31,7 +47,7 @@ export function SidePanel({
       }`}
     >
       <Card
-        className={`h-full w-72 rounded-none ${
+        className={`h-full ${widthClass} rounded-none ${
           isLeft ? "border-r" : "border-l"
         }`}
       >

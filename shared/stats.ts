@@ -1,3 +1,4 @@
+import { calculateDistance } from "./math";
 import type { TraceStats, GPXPoint } from "./types";
 
 /**

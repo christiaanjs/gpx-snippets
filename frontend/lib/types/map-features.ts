@@ -15,6 +15,7 @@ export type LineFeature = BaseMapFeature & {
 export type SelectablePointLineFeature = BaseMapFeature & {
   type: "selectable-point-line";
   points: GPXPoint[];
+  selectedPoints?: GPXPoint[];
   onPointSelect: (point: GPXPoint, index: number) => void;
 };
 

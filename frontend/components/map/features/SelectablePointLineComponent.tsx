@@ -28,9 +28,20 @@ function getIcon(iconType: "default" | "selected" = "default"): L.Icon {
   }
 }
 
+const isPointSelected = (
+  point: { lat: number; lon: number },
+  selectedPoints: { lat: number; lon: number }[] | undefined
+): boolean => {
+  if (!selectedPoints) return false;
+  return selectedPoints.some(
+    (pt) => pt.lat === point.lat && pt.lon === point.lon
+  );
+};
+
 export function SelectablePointLineComponent({
   onPointSelect,
   points,
+  selectedPoints,
 }: SelectablePointLineFeature): JSX.Element {
   return (
     <>
@@ -42,7 +53,9 @@ export function SelectablePointLineComponent({
           eventHandlers={{
             click: () => onPointSelect?.(pt, idx),
           }}
-          icon={getIcon()}
+          icon={getIcon(
+            isPointSelected(pt, selectedPoints) ? "selected" : "default"
+          )}
         />
       ))}
     </>

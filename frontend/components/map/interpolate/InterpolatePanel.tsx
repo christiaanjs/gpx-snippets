@@ -48,6 +48,7 @@ export const InterpolatePanel = () => {
         id: "selectable-gpx-trace",
         type: "selectable-point-line",
         points: gpx.points,
+        selectedPoints: selectedPoints,
         onPointSelect: handlePointSelection,
       });
     }

@@ -1,9 +1,11 @@
 "use server";
-import { assertRoutingRequest } from "@/lib/routing";
+import { parseRoutingRequest } from "@/lib/routing";
 import { getRoute as getRouteLib } from "@shared/routing/index";
-import { RoutingResult } from "@shared/routing/types";
+import { RoutingRequest, RoutingResult } from "@shared/routing/types";
 
-export async function getRoute(request: unknown): Promise<RoutingResult> {
-  const routingRequest = assertRoutingRequest(request);
+export async function getRoute(
+  request: RoutingRequest
+): Promise<RoutingResult> {
+  const routingRequest = parseRoutingRequest(request);
   return await getRouteLib(routingRequest);
 }

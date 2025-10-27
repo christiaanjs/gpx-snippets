@@ -6,10 +6,16 @@ import { RightPanel } from "../panels/RightPanel";
 
 import { useEffect, useState, useCallback } from "react";
 import type { GPXPoint } from "@shared/types";
-import type { RoutingResult } from "@shared/routing/types";
+import type {
+  ORSPreference,
+  ORSRoutingProfile,
+  OSRMRoutingProfile,
+  RoutingResult,
+} from "@shared/routing/types";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { plotSelectableGPXTrace } from "@/lib/plot-trace";
+import { getRoute } from "@/app/api/getRoute";
 
 const pointLabels = ["First point", "Second point"];
 
@@ -17,7 +23,7 @@ const NoData = () => <div>Load a GPX file to interpolate.</div>;
 
 export const InterpolatePanel = () => {
   const header = <PanelHeader>Interpolate</PanelHeader>;
-  const { gpx, upsertFeature } = useMyMap();
+  const { gpx, upsertFeature, removeFeature } = useMyMap();
 
   const [selectedPoints, setSelectedPoints] = useState<GPXPoint[]>([]);
   const [routingService, setRoutingService] = useState<"osrm" | "ors">("osrm");
@@ -29,11 +35,18 @@ export const InterpolatePanel = () => {
   const [interpolationError, setInterpolationError] = useState<string | null>(
     null
   );
-  const [routeLayer, setRouteLayer] = useState<any>(undefined);
 
   const handlePointSelection = useCallback(
     (point: GPXPoint, index: number) => {
-      if (selectedPoints.length >= 2) {
+      const indexOfPointInSelection = selectedPoints.findIndex(
+        (p) => p.lat === point.lat && p.lon === point.lon
+      );
+      if (indexOfPointInSelection !== -1) {
+        setSelectedPoints((prev) => [
+          ...prev.slice(0, indexOfPointInSelection),
+          ...prev.slice(indexOfPointInSelection + 1),
+        ]);
+      } else if (selectedPoints.length >= 2) {
         setSelectedPoints([point]);
       } else {
         setSelectedPoints([...selectedPoints, point]);
@@ -51,44 +64,62 @@ export const InterpolatePanel = () => {
         selectedPoints: selectedPoints,
         onPointSelect: handlePointSelection,
       });
+    } else {
+      removeFeature("selectable-gpx-trace");
     }
-  }, [gpx]);
+  }, [gpx, selectedPoints]);
 
-  //   const interpolateRoute = async () => {
-  //     if (!map || selectedPoints.length !== 2) return;
-  //     setIsInterpolating(true);
-  //     setInterpolationError(null);
-  //     try {
-  //       let result: RoutingResult | null = null;
-  //       if (routingService === "osrm") {
-  //         result = await getRouteOSRM(
-  //           selectedPoints[0],
-  //           selectedPoints[1],
-  //           osrmProfile
-  //         );
-  //       } else {
-  //         result = await getRouteORS(selectedPoints[0], selectedPoints[1], {
-  //           profile: orsProfile,
-  //           preference: orsPreference,
-  //         });
-  //       }
-  //       setRouteResult(result);
-  //       if (result) {
-  //         const layer = await plotInterpolatedRoute(
-  //           map,
-  //           result,
-  //           selectedPoints[0],
-  //           selectedPoints[1],
-  //           routeLayer
-  //         );
-  //         setRouteLayer(layer);
-  //       }
-  //     } catch (error: any) {
-  //       setInterpolationError(error?.message || "Unknown interpolation error");
-  //     } finally {
-  //       setIsInterpolating(false);
-  //     }
-  //   };
+  const interpolateRoute = useCallback(async () => {
+    if (selectedPoints.length !== 2) return;
+    setIsInterpolating(true);
+    setInterpolationError(null);
+    const [a, b] = selectedPoints;
+    const indexA = gpx?.points.findIndex(
+      (pt) => pt.lat === a.lat && pt.lon === a.lon
+    );
+    const indexB = gpx?.points.findIndex(
+      (pt) => pt.lat === b.lat && pt.lon === b.lon
+    );
+    if (indexA === undefined || indexB === undefined) return;
+    const [start, finish] = indexA < indexB ? [a, b] : [b, a];
+    try {
+      const result = await getRoute({
+        start,
+        finish,
+        ...(routingService === "osrm"
+          ? {
+              service: "osrm",
+              options: {
+                profile: osrmProfile as OSRMRoutingProfile,
+              },
+            }
+          : {
+              service: "ors",
+              options: {
+                profile: orsProfile as ORSRoutingProfile,
+                preference: orsPreference as ORSPreference,
+              },
+            }),
+      });
+      setRouteResult(result);
+    } catch (error: any) {
+      setInterpolationError(error?.message || "Unknown interpolation error");
+    } finally {
+      setIsInterpolating(false);
+    }
+  }, [selectedPoints]);
+
+  useEffect(() => {
+    if (routeResult) {
+      upsertFeature("interpolated-route", {
+        id: "interpolated-route",
+        type: "line",
+        points: routeResult.route,
+      });
+    } else {
+      removeFeature("interpolated-route");
+    }
+  }, [routeResult]);
 
   // Reset selection and route
   const resetSelection = () => {
@@ -200,13 +231,13 @@ export const InterpolatePanel = () => {
           )}
           {selectedPoints.length === 2 && (
             <div className="flex gap-2">
-              {/* <Button
+              <Button
                 variant="default"
                 onClick={interpolateRoute}
                 disabled={isInterpolating}
               >
                 {isInterpolating ? "Calculating..." : "Interpolate Route"}
-              </Button> */}
+              </Button>
               <Button
                 variant="outline"
                 onClick={resetSelection}

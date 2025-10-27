@@ -28,13 +28,27 @@ export type ORSRoutingRequest = BaseRoutingRequest & {
   options: ORSRoutingOptions;
 };
 
-export type RoutingRequest = ORSRoutingRequest;
+export type OSRMRoutingProfile = "driving" | "walking" | "cycling";
 
-export const isORSRoutingRequest = (
-  request: ORSRoutingRequest
-): request is ORSRoutingRequest => {
-  return request.service === "ors";
+export type OSRMRoutingRequest = BaseRoutingRequest & {
+  service: "osrm";
+  options: {
+    profile: OSRMRoutingProfile;
+  };
 };
+
+export type RoutingRequest = ORSRoutingRequest | OSRMRoutingRequest;
+
+type RoutingRequestTypes = { ors: ORSRoutingRequest; osrm: OSRMRoutingRequest };
+
+export const isRoutingRequestFor = <Service extends keyof RoutingRequestTypes>(
+  type: Service,
+  request: RoutingRequest
+): request is RoutingRequestTypes[Service] => {
+  return request.service === type;
+};
+
+
 
 export type RoutingResult = {
   route: GPXPoint[];

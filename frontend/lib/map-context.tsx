@@ -59,10 +59,14 @@ export function MapContextProvider({
 
   useEffect(() => {
     if (gpx) {
+      const color = getComputedStyle(document.documentElement)
+        .getPropertyValue("--chart-1")
+        .trim();
       upsertFeature("gpx", {
         id: "gpx",
         type: "line",
         points: gpx.points,
+        options: { color },
       });
       setMapBounds(getBounds(gpx.points));
     } else {

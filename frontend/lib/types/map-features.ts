@@ -1,4 +1,5 @@
 import { GPXPoint } from "@shared/types";
+import { PolylineProps } from "react-leaflet";
 
 type MapFeatureTypes = "line" | "selectable-point-line";
 
@@ -10,6 +11,7 @@ type BaseMapFeature = {
 export type LineFeature = BaseMapFeature & {
   type: "line";
   points: GPXPoint[];
+  options?: Omit<PolylineProps, "positions">;
 };
 
 export type SelectablePointLineFeature = BaseMapFeature & {

@@ -12,12 +12,6 @@ export const PolylineFromGpx = forwardRef(
       (point) => [point.lat, point.lon] as [number, number]
     );
 
-    return (
-      <Polyline
-        positions={latLngs}
-        pathOptions={{ color: "#e74c3c" }}
-        {...props}
-      />
-    );
+    return <Polyline positions={latLngs} {...props} />;
   }
 );
